@@ -8,8 +8,10 @@ const express = require("express"),
         require("passport-local-mongoose");
 const User = require("./model/User");
 let app = express();
+app.use(express.static("public"));
 
-mongoose.connect("mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.net/");
+
+mongoose.connect("mongodb+srv://axong:dbpass123@cluster0.5i0maha.mongodb.net/myDB");
 // mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.net/
 
 app.set("view engine", "ejs");
@@ -44,15 +46,84 @@ app.get("/register", function (req, res) {
     res.render("register");
 });
 
+app.get("/forgot-password", function (req, res) {
+    res.render("forgot-password");
+});
+
+app.get("/verify-security", function (req, res) {
+    res.render("verify-security");
+});
+app.get("/changePass", function (req, res) {
+    res.render("changePass");
+});
+
+
 // Handling user signup
 app.post("/register", async (req, res) => {
-    const user = await User.create({
-        username: req.body.username,
-        password: req.body.password
-    });
+    try {
+        await User.create({
+            username: req.body.username,
+            password: req.body.password,
+            securityQuestion: req.body.security_question,
+            securityAnswer: req.body.security_answer
+        });
 
-    return res.status(200).json(user);
+        res.redirect("/login?registered=success");
+    } catch (err) {
+        res.redirect("/register?registered=failed");
+    }
 });
+
+app.post("/forgot-password", async (req, res) => {
+    const { username } = req.body;
+    const user = await User.findOne({ username });
+
+    if (!user) {
+        return res.redirect("/forgot-password?error=user_not_found");
+    }
+
+    res.render("verify-security", { username, securityQuestion: user.securityQuestion });
+});
+
+app.post("/verify-answer", async (req, res) => {
+    const { username, security_answer } = req.body;
+    const user = await User.findOne({ username });
+
+    if (!user) {
+        return res.render("forgot-password");
+    }
+
+    if (user.securityAnswer !== security_answer) {
+        return res.render("verify-security", {
+            username,
+            securityQuestion: user.securityQuestion,
+            error: "Incorrect answer. Try again!"
+        });
+    }
+
+    res.render("reset-password", { username });
+});
+
+app.post("/reset-password", async (req, res) => {
+    try {
+        const { username, new_password } = req.body;
+
+
+        const user = await User.findOne({ username });
+        if (!user) return res.send("User not found");
+
+
+        user.password = new_password;
+
+        await user.save();
+
+        res.redirect("/login?message=resetSuccess");
+    } catch (err) {
+        console.error(err);
+        res.send("Error updating password");
+    }
+});
+
 
 // Showing login form
 app.get("/login", function (req, res) {
