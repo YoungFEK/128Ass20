@@ -14,6 +14,7 @@ mongoose.connect("mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(require("express-session")({
     // study if may time, if wala then delete
     secret: "Rusty is a dog",
@@ -58,14 +59,21 @@ app.get("/login", function (req, res) {
     res.render("login");
 });
 
+app.get("/loginPage", function (req, res) {
+    res.render("login");
+});
+
+
+
+
 // Handling user login
-app.post("/login", async function (req, res) {
+app.post("/loginPage", async function (req, res) {
     try {
         const user = await User.findOne({ username: req.body.username });
         if (user) {
             const result = req.body.password === user.password;
             if (result) {
-                res.render("secret");
+                res.render("secret", {User: user});
             } else {
                 res.status(400).json({ error: "password doesn't match" });
             }
@@ -92,4 +100,21 @@ function isLoggedIn(req, res, next) {
 let port = process.env.PORT || 3000;
 app.listen(port, function () {
     console.log("Server Has Started!");
+});
+
+
+
+// ----------------------
+//PUT REQUEST for updatign task
+app.put("/updateName", async (req, res) => {
+  const taskId = req.body.id;
+  const newName = req.body.name;
+
+  try {
+    await User.findByIdAndUpdate(taskId, { username: newName });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "Could not update task" });
+  }
 });
