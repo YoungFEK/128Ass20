@@ -10,10 +10,12 @@ const User = require("./model/User");
 let app = express();
 
 mongoose.connect("mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.net/");
+// mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.net/
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(require("express-session")({
+    // study if may time, if wala then delete
     secret: "Rusty is a dog",
     resave: false,
     saveUninitialized: false
