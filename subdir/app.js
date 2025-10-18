@@ -11,7 +11,7 @@ let app = express();
 app.use(express.static("public"));
 
 
-mongoose.connect("mongodb+srv://axong:dbpass123@cluster0.5i0maha.mongodb.net/myDB");
+mongoose.connect("mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.net/");
 // mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.net/
 
 app.set("view engine", "ejs");
@@ -30,6 +30,9 @@ app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+let userName = null;
+
 
 // Showing home page
 app.get("/", function (req, res) {
@@ -130,9 +133,10 @@ app.get("/login", function (req, res) {
     res.render("login");
 });
 
-app.get("/loginPage", function (req, res) {
-    res.render("login");
+app.get("/loginPage", async function (req, res) {
+    res.render("secret");
 });
+
 
 
 
@@ -141,6 +145,7 @@ app.get("/loginPage", function (req, res) {
 app.post("/loginPage", async function (req, res) {
     try {
         const user = await User.findOne({ username: req.body.username });
+        userName = req.body.username;
         if (user) {
             const result = req.body.password === user.password;
             if (result) {
