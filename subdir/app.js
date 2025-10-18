@@ -11,18 +11,25 @@ let app = express();
 app.use(express.static("public"));
 
 
-mongoose.connect("mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.net/");
+mongoose.connect("mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/");
 // mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.net/
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+const MongoStore = require('connect-mongo');
 app.use(require("express-session")({
-    // study if may time, if wala then delete
-    secret: "Rusty is a dog",
-    resave: false,
-    saveUninitialized: false
+  secret: "Rusty is a dog",
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: "mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/",
+    ttl: 24 * 60 * 60 // 1 day
+  }),
+  cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 }
 }));
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -31,17 +38,12 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-let userName = null;
+
 
 
 // Showing home page
 app.get("/", function (req, res) {
     res.render("home");
-});
-
-// Showing secret page
-app.get("/secret", isLoggedIn, function (req, res) {
-    res.render("secret");
 });
 
 // Showing register form
@@ -64,12 +66,15 @@ app.get("/changePass", function (req, res) {
 // Handling user signup
 app.post("/register", async (req, res) => {
     try {
-        await User.create({
+
+        const user = new User({
             username: req.body.username,
-            password: req.body.password,
+            name: req.body.name,
+            //password is handled by passport-local-mongoose
             securityQuestion: req.body.security_question,
             securityAnswer: req.body.security_answer
         });
+        await User.register(user, req.body.password);
 
         res.redirect("/login?registered=success");
     } catch (err) {
@@ -133,33 +138,28 @@ app.get("/login", function (req, res) {
     res.render("login");
 });
 
-app.get("/loginPage", async function (req, res) {
-    res.render("secret");
-});
 
 
 
 
-
-// Handling user login
-app.post("/loginPage", async function (req, res) {
+app.get("/loginPage", isLoggedIn, async function (req, res) {
     try {
-        const user = await User.findOne({ username: req.body.username });
-        userName = req.body.username;
-        if (user) {
-            const result = req.body.password === user.password;
-            if (result) {
-                res.render("secret", {User: user});
-            } else {
-                res.status(400).json({ error: "password doesn't match" });
-            }
-        } else {
-            res.status(400).json({ error: "User doesn't exist" });
-        }
+        const user = await User.findById(req.user._id);
+        // const user = await User.findOne(req.user.username);
+        res.render("secret", { User: user });
     } catch (error) {
-        res.status(400).json({ error });
+        console.error(error);
+        res.status(400).json({ error: "Something went wrong" });
     }
 });
+
+// app.post("/login", passport.authenticate("local", {     //figure out why not woring
+
+app.post("/loginPage", passport.authenticate("local", {
+    successRedirect: "/loginPage",
+    failureRedirect: "/login?error=invalid"
+}));
+
 
 app.get("/logout", function (req, res) {
     req.logout(function (err) {
@@ -173,24 +173,84 @@ function isLoggedIn(req, res, next) {
     res.redirect("/login");
 }
 
-let port = process.env.PORT || 3000;
-app.listen(port, function () {
-    console.log("Server Has Started!");
+app.put("/updateName", isLoggedIn, async (req, res) => {
+    try {
+        const { id, name } = req.body;
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { username: name },
+            { new: true } // returns updated document
+        );
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        // Re-login the user to refresh session data
+        req.login(updatedUser, (err) => {
+            if (err) {
+                console.error("Error re-logging user:", err);
+                return res.status(500).json({ success: false, message: "Re-login failed" });
+            }
+            res.json({ success: true, user: updatedUser });
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Could not update username" });
+    }
+});
+
+app.put("/updateProfileName", isLoggedIn, async (req, res) => {
+    try {
+        const { id, name } = req.body;
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { name: name },
+            { new: true } // returns updated document
+        );
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        // Re-login the user to refresh session data
+        req.login(updatedUser, (err) => {
+            if (err) {
+                console.error("Error re-logging user:", err);
+                return res.status(500).json({ success: false, message: "Re-login failed" });
+            }
+            res.json({ success: true, user: updatedUser });
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Could not update username" });
+    }
 });
 
 
+// app.put("/updatePassword", isLoggedIn, async (req, res) => {
+//   try {
+//     const { id, name } = req.body;
+//     const user = await User.findById(id);
 
-// ----------------------
-//PUT REQUEST for updatign task
-app.put("/updateName", async (req, res) => {
-  const taskId = req.body.id;
-  const newName = req.body.name;
+//     if (!user) {
+//       return res.status(404).send("User not found");
+//     }
 
-  try {
-    await User.findByIdAndUpdate(taskId, { username: newName });
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, error: "Could not update task" });
-  }
+//     // Use passport-local-mongoose helper
+//     await new Promise((resolve, reject) => {
+//       user.setPassword(newPassword, (err) => {
+//         if (err) return reject(err);
+//         user.save().then(resolve).catch(reject);
+//       });
+//     });
+
+//   } catch (err) {
+//     console.error("Error changing password:", err);
+//     res.status(500).send("Error changing password");
+//   }
+// });
+
+
+
+
+let port = process.env.PORT || 3000;
+app.listen(port, function () {
+    console.log("Server Has Started!");
 });
