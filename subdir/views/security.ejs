@@ -23,7 +23,7 @@
 
         .container {
             display: flex;
-            width: 850px;
+            width: 600px;
             height: 500px;
             background: rgba(255, 255, 255, 0.92);
             border-radius: 12px;
@@ -32,44 +32,28 @@
             backdrop-filter: blur(8px);
         }
 
-        /* LEFT SIDE */
-        .illustration {
-            flex: 1;
-            background: url("/source/coffee.jpg") no-repeat center center;
-            background-size: cover;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 1.5rem;
-            color: #fff;
-        }
-        .illustration h2 {
-            font-size: 1.6rem;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+        form{
+            margin-top: 2rem;
         }
 
-        .illustration img {
-            width: 70%;
-            max-width: 250px;
-            height: auto;
-            margin: 0.3rem 0;
-            object-fit: contain;
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #3e2723;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+
         }
 
-        .illustration p {
-            font-size: 0.9rem;
-            color: #f0f0f0;
-            margin-top: 1rem;
-            width: 80%;
-            line-height: 1.4;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+        .back-link:hover {
+            color: #5d4037;
+
         }
 
-        /* RIGHT SIDE */
+
+
         .login-box {
             flex: 1;
             padding: 3rem;
@@ -109,23 +93,10 @@
             font-size: 1rem;
         }
 
-        .forgot {
-            text-align: right;
-            margin-top: -0.8rem;
-            margin-bottom: 1rem;
-        }
 
-        .forgot a {
-            color: #795548;
-            font-size: 0.85rem;
-            text-decoration: none;
-        }
-
-        .forgot a:hover {
-            text-decoration: underline;
-        }
 
         button {
+            margin-top: 1rem;
             background-color: #3e2723;
             color: white;
             border: none;
@@ -137,52 +108,13 @@
             transition: 0.2s;
         }
 
-        #signupButton{
-            background-color: white;
-            color: #3e2723;
-            border: 1px solid #3e2723;
-        }
-        #signupButton:hover {
-            background-color: #5d4037;
-            color: white;
-        }
+
 
         button:hover {
             background-color: #5d4037;
         }
 
-        .or {
-            text-align: center;
-            margin: 1rem 0;
-            color: #aaa;
-            position: relative;
-        }
 
-        .or::before,
-        .or::after {
-            content: "";
-            position: absolute;
-            height: 1px;
-            width: 35%;
-            background: #ddd;
-            top: 50%;
-        }
-
-        .or::before { left: 0; }
-        .or::after { right: 0; }
-
-
-        .signup a {
-            color: #795548;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .signup a:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive tweak for smaller screens */
         @media (max-width: 900px) {
             .container {
                 flex-direction: column;
@@ -190,9 +122,6 @@
                 height: auto;
             }
 
-            .illustration {
-                padding: 2rem 1rem;
-            }
 
             .illustration img {
                 width: 60%;
@@ -206,17 +135,23 @@
 </head>
 
 <body>
-    <form action="/changePassword" method="POST">
-            <label>Old password</label>
-            <input type="text" name="old_password" id="old_password" required />
+    <div class="container">
+        <a href="/loginPage" class="back-link">← Back</a>
+        <div class="login-box">
+            <h1>Change Password</h1>
+            <form action="/changePassword" method="POST">
+                <label>Old password</label>
+                <input type="text" name="old_password" id="old_password" required />
 
-            <label>New Password</label>
-            <input type="text" name="new_password" id="new_password" required />
+                <label>New Password</label>
+                <input type="text" name="new_password" id="new_password" required />
 
-            <input type="hidden" name="user_id" value="<%= user._id %>">
+                <input type="hidden" name="user_id" value="<%= user._id %>">
 
-            <button type="submit">Save</button>
-    </form>
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
 
 </body>
 
