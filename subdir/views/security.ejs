@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Login Page</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            background: url("/source/bg.jpg") no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            display: flex;
+            width: 850px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+        }
+
+        /* LEFT SIDE */
+        .illustration {
+            flex: 1;
+            background: url("/source/coffee.jpg") no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+            color: #fff;
+        }
+        .illustration h2 {
+            font-size: 1.6rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .illustration img {
+            width: 70%;
+            max-width: 250px;
+            height: auto;
+            margin: 0.3rem 0;
+            object-fit: contain;
+        }
+
+        .illustration p {
+            font-size: 0.9rem;
+            color: #f0f0f0;
+            margin-top: 1rem;
+            width: 80%;
+            line-height: 1.4;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* RIGHT SIDE */
+        .login-box {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #333;
+        }
+
+        .login-box h1 {
+            font-family: "Cursive", sans-serif;
+            font-weight: 600;
+            color: #3e2723;
+            margin-bottom: 0.3rem;
+        }
+
+        .login-box h3 {
+            color: #5d4037;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: #444;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 1.2rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .forgot {
+            text-align: right;
+            margin-top: -0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .forgot a {
+            color: #795548;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .forgot a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            background-color: #3e2723;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #signupButton{
+            background-color: white;
+            color: #3e2723;
+            border: 1px solid #3e2723;
+        }
+        #signupButton:hover {
+            background-color: #5d4037;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #5d4037;
+        }
+
+        .or {
+            text-align: center;
+            margin: 1rem 0;
+            color: #aaa;
+            position: relative;
+        }
+
+        .or::before,
+        .or::after {
+            content: "";
+            position: absolute;
+            height: 1px;
+            width: 35%;
+            background: #ddd;
+            top: 50%;
+        }
+
+        .or::before { left: 0; }
+        .or::after { right: 0; }
+
+
+        .signup a {
+            color: #795548;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive tweak for smaller screens */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                width: 90%;
+                height: auto;
+            }
+
+            .illustration {
+                padding: 2rem 1rem;
+            }
+
+            .illustration img {
+                width: 60%;
+            }
+
+            .login-box {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <form action="/changePassword" method="POST">
+            <label>Old password</label>
+            <input type="text" name="old_password" id="old_password" required />
+
+            <label>New Password</label>
+            <input type="text" name="new_password" id="new_password" required />
+
+            <button type="submit">Sign in</button>
+        </form>
+
+</body>
+
+<script>
+
+</script>
+</html>

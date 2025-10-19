@@ -55,6 +55,12 @@ app.get("/forgot-password", function (req, res) {
     res.render("forgot-password");
 });
 
+//isLoggedIn
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) return next();
+    res.redirect("/login");
+}
+
 app.get("/verify-security", function (req, res) {
     res.render("verify-security");
 });
@@ -67,10 +73,10 @@ app.get("/changePass", function (req, res) {
 app.post("/register", async (req, res) => {
     try {
 
+        //password is handled by passport-local-mongoose
         const user = new User({
             username: req.body.username,
             name: req.body.name,
-            //password is handled by passport-local-mongoose
             securityQuestion: req.body.security_question,
             securityAnswer: req.body.security_answer
         });
@@ -141,7 +147,7 @@ app.get("/login", function (req, res) {
 
 
 
-
+//examine isLoggedIn
 app.get("/loginPage", isLoggedIn, async function (req, res) {
     try {
         const user = await User.findById(req.user._id);
@@ -167,11 +173,6 @@ app.get("/logout", function (req, res) {
         res.redirect('/');
     });
 });
-
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) return next();
-    res.redirect("/login");
-}
 
 app.put("/updateName", isLoggedIn, async (req, res) => {
     try {
@@ -224,29 +225,22 @@ app.put("/updateProfileName", isLoggedIn, async (req, res) => {
 });
 
 
-// app.put("/updatePassword", isLoggedIn, async (req, res) => {
-//   try {
-//     const { id, name } = req.body;
-//     const user = await User.findById(id);
+    app.get("/security/:id", async (req, res) => {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).send("User not found");
+        res.render("security", { user });
+    }); 
 
-//     if (!user) {
-//       return res.status(404).send("User not found");
-//     }
+    app.post("/changePassword", async (req, res) => {
+        try {
 
-//     // Use passport-local-mongoose helper
-//     await new Promise((resolve, reject) => {
-//       user.setPassword(newPassword, (err) => {
-//         if (err) return reject(err);
-//         user.save().then(resolve).catch(reject);
-//       });
-//     });
 
-//   } catch (err) {
-//     console.error("Error changing password:", err);
-//     res.status(500).send("Error changing password");
-//   }
-// });
 
+            // res.redirect("/login?registered=success");
+        } catch (err) {
+            
+        }
+    });
 
 
 
