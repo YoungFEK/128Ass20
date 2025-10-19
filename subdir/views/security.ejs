@@ -213,8 +213,10 @@
             <label>New Password</label>
             <input type="text" name="new_password" id="new_password" required />
 
-            <button type="submit">Sign in</button>
-        </form>
+            <input type="hidden" name="user_id" value="<%= user._id %>">
+
+            <button type="submit">Save</button>
+    </form>
 
 </body>
 

@@ -174,6 +174,7 @@ app.get("/logout", function (req, res) {
     });
 });
 
+//try not logging in
 app.put("/updateName", isLoggedIn, async (req, res) => {
     try {
         const { id, name } = req.body;
@@ -232,14 +233,22 @@ app.put("/updateProfileName", isLoggedIn, async (req, res) => {
     }); 
 
     app.post("/changePassword", async (req, res) => {
-        try {
 
-
-
-            // res.redirect("/login?registered=success");
-        } catch (err) {
+        oldPassword = req.body.old_password;
+        newPassword = req.body.new_password;
+        const user = await User.findById(req.body.user_id);
+        user.changePassword(oldPassword, newPassword, (err) => {
+            if (err) {
+                if (err.name === 'IncorrectPasswordError') {
+                    return res.status(400).send('Incorrect old password.');
+                } else {
+                    console.error(err);
+                    return res.status(500).send('Something went wrong.');
+                }
+            }
+            res.redirect("/login?registered=success");
             
-        }
+        })
     });
 
 
