@@ -28,6 +28,7 @@ app.use(require("express-session")({
     ttl: 24 * 60 * 60 // 1 day
   }),
   cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 }
+
 }));
 
 
