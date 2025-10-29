@@ -122,14 +122,11 @@ app.post("/verify-answer", async (req, res) => {
 app.post("/reset-password", async (req, res) => {
     try {
         const { username, new_password } = req.body;
-
-
         const user = await User.findOne({ username });
+
         if (!user) return res.send("User not found");
 
-
-        user.password = new_password;
-
+        await user.setPassword(new_password);
         await user.save();
 
         res.redirect("/login?message=resetSuccess");
