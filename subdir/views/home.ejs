@@ -1,7 +1,51 @@
-// Filename - views/home.ejs
+<!-- home.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible"
+        content="IE=edge">
+    <meta name="viewport" content=
+        "width=device-width, initial-scale=1.0">
+    <title>To-do List</title>
+    <!-- <link rel="stylesheet" href="css/styles.css"> -->
+</head>
 
-<h1>This is home page</h1>
+<body>
+    <div>
+        <h1>
+            To-Do List
+        </h1>
+    </div>
 
-<li><a href="/register">Sign up!!</a></li>
-<li><a href="/login">Login</a></li>
-<li><a href="/logout">Logout</a></li>
+    <div>
+
+        <!-- We check if the object receieved is not
+            empty, else there will be an error -->
+        <!-- To avoid error, we simply use if-else, 
+            empty object is handled in if block -->
+        <% if (tdl_Array.length===0) {%>
+            <p style="text-align: center;">
+                No To do list created yet
+            </p>
+
+        <% } else { %>
+
+            <% for (var i=0; i< tdl_Array.length; i++){ %>
+                <button onclick="window.location.href='/taskList/<%- tdl_Array[i].id %>'"><%- tdl_Array[i].name %></button>
+                      
+            <% } %>
+        <% } %>
+                
+       <form action="/createTodoList" method="POST">
+            <input type="text" name = "newList_Name" placeholder="Add a New To-do list here" required> 
+            <input type="hidden" name="user_id" value="<%- userId %>">
+            <button type="submit" name="submit">create</button>
+        </form>
+
+</body>
+
+<script>
+</script>
+
+</html>

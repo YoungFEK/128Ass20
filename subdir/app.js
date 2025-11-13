@@ -1,12 +1,12 @@
 // Filename - App.js
 
 const express = require("express"),
-    mongoose = require("mongoose"),
-    passport = require("passport"),
-    LocalStrategy = require("passport-local"),
-    passportLocalMongoose =
-        require("passport-local-mongoose");
+mongoose = require("mongoose"),
+passport = require("passport"),
+LocalStrategy = require("passport-local"),
+passportLocalMongoose = require("passport-local-mongoose");
 const User = require("./model/User");
+const TodoList = require("./model/list");
 let app = express();
 app.use(express.static("public"));
 
@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 const MongoStore = require('connect-mongo');
+
 app.use(require("express-session")({
   secret: "Rusty is a dog",
   resave: false,
@@ -149,8 +150,14 @@ app.get("/login", function (req, res) {
 app.get("/loginPage", isLoggedIn, async function (req, res) {
     try {
         const user = await User.findById(req.user._id);
-        // const user = await User.findOne(req.user.username);
-        res.render("secret", { User: user });
+        const userId = req.user._id;
+        
+
+        //secret is where profile information is displayed
+        // res.render("secret", { User: user });
+        //tdListIds may hold name
+        res.render("home", { userId: userId, tdl_Array: user.tdListIds});
+
     } catch (error) {
         console.error(error);
         res.status(400).json({ error: "Something went wrong" });
@@ -238,16 +245,75 @@ app.put("/updateProfileName", isLoggedIn, async (req, res) => {
         user.changePassword(oldPassword, newPassword, (err) => {
             if (err) {
                 if (err.name === 'IncorrectPasswordError') {
-                    return res.status(400).send('Incorrect old password.');
+                    // return res.status(400).send('Incorrect old password.');
+                    return res.redirect(`/security/${user._id}?error=invalid`);
                 } else {
                     console.error(err);
                     return res.status(500).send('Something went wrong.');
                 }
             }
-            res.redirect("/login?registered=success");
+            res.redirect("/login?message=resetSuccess");
             
         })
     });
+
+
+
+
+//ADDED METHODS IN RELATION TO MERGING TO DO LIST, VERY FEW LINES CAN BE FOUND ABOVE
+app.get("/taskList/:id", async(req, res) => {
+
+    //find the specific to do list by its id
+    //access its tasks array
+    //render the task list page with the tasks array
+    const todoList = await TodoList.findById(req.params.id);
+    if (!todoList) {
+        return res.status(404).send("To-Do List not found");
+    }
+
+    const userTasks = todoList.tasks;
+
+    res.render("taskList", { tasks: userTasks});
+
+});
+
+app.post("/createTodoList", async (req, res) => {
+
+    const listName = req.body.newList_Name;
+    const userId =  req.body.user_id;
+    
+
+    const newTodoList= new TodoList({
+            listName: listName,
+            tasks: []
+    });
+
+    await newTodoList.save();
+
+    // for storing to do list name and id in user
+    const todoListObject = {
+        id: newTodoList._id,
+        name: newTodoList.listName
+    }
+
+    const user = await User.findById(
+            userId
+    );
+
+    if (!user) {
+       return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.tdListIds.push(todoListObject); 
+
+    await user.save();
+
+    res.redirect("/loginPage");
+
+});
+
+
+
 
 
 

@@ -1,0 +1,228 @@
+<!-- index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible"
+        content="IE=edge">
+    <meta name="viewport" content=
+        "width=device-width, initial-scale=1.0">
+    <title>To-do List</title>
+    <!-- study this VVVVV why doesn't it work without slash -->
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div class="box" id="heading">
+        <h1 style="color: #ffffff">
+            To-Do List
+        </h1>
+    </div>
+
+    <div class="box">
+
+        <!-- We check if the object receieved is not
+            empty, else there will be an error -->
+
+        <!-- To avoid error, we simply use if-else, 
+            empty object is handled in if block -->
+        <% if (tasks.length===0) {%>
+            <p style="text-align: center;">
+                No Task Added Yet
+            </p>
+
+        <% } else { %>
+
+            <select id="prioritize_func">
+                <option value="1" >Date Added</option>
+                <option value="2" >Due Date</option>
+                <option value="3" >Priority</option>
+            </select>
+
+            <% for (var i=0; i< tasks.length; i++){ %>
+
+                <!-- Action is the route to which form 
+                    send request -->
+                <!-- And method defines the "type" of request -->
+                <form action="/delete" method="post">
+                    <div class="item">
+                        <input type="checkbox" name="checkbox" 
+                        
+                            value="<%=i%>"
+                            onchange="this.form.submit()">
+
+                        <button class="mark-done" data-id="<%= i %>">
+                            Mark as Done
+                        </button>
+                        
+                        <p>
+                            <input type="text" class="task-input" value="<%= tasks[i].name %>" data-id="<%= i %>">
+                        </p>
+
+                        <input type="date" class="task-date" data-id="<%= i %>" value="<%= tasks[i].dueDate ? tasks[i].dueDate.toISOString().substring(0,10) : '' %>">
+                        <input type="time" class="task-time" data-id="<%= i %>" value="<%= tasks[i].dueDate ? tasks[i].dueDate.toISOString().substring(11,16) : '' %>">
+
+                        <select class="task-priority" data-id="<%= i %>">
+                            <option value="1" <%= tasks[i].priority === 1 ? "selected" : "" %>>Low</option>
+                            <option value="2" <%= tasks[i].priority === 2 ? "selected" : "" %>>Medium</option>
+                            <option value="3" <%= tasks[i].priority === 3 ? "selected" : "" %>>High</option>
+                        </select>
+                        
+                         <small class="task-timestamp">
+                            Added: <%= new Date(tasks[i].createdAt).toLocaleString("en-US") %>
+                        </small>
+            
+
+                    </div>
+
+                    <hr>
+                </form>
+                
+                
+            <% } %>
+        <% } %>
+                
+        <!-- Action is the route to which form 
+                                send request -->
+        <!-- And method defines the "type" 
+                                of request -->
+        <form class="item " action="/" method="POST">
+            <input type="text" name="newTask" 
+                autocomplete="off" 
+                placeholder="Add a New Task Here">
+            
+            <button type="submit" name="submit">+</button>
+        </form>
+    </div>
+
+   
+
+   <script>
+        // Save task name
+        document.querySelectorAll('.task-input').forEach(input => {
+            input.addEventListener('input', async (e) => {
+            const taskId = e.target.dataset.id;   // get task id from data-id
+            const newName = e.target.value;       // get the new task name
+
+            try {
+                const resp = await fetch(`/update-task`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: newName, id: taskId }),
+                });
+
+                if (!resp.ok) {
+                console.error('Error updating task:', await resp.text());
+                }
+            } catch (err) {
+                console.error('Network error:', err);
+            }
+            });
+        });
+
+
+        // Save date
+        document.querySelectorAll('.task-date').forEach(input => {
+            input.addEventListener('change', async (e) => {
+            const taskId = e.target.dataset.id;
+            const newDate = e.target.value;  // e.g. "2025-09-29"
+
+            await fetch(`/update-date/${taskId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dueDate: newDate })
+            });
+            });
+        });
+
+        // Save time
+        document.querySelectorAll('.task-time').forEach(input => {
+            input.addEventListener('change', async (e) => {
+            const taskId = e.target.dataset.id;
+            const newTime = e.target.value;  
+
+            await fetch(`/update-time/${taskId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dueTime: newTime })
+            });
+            });
+        });
+
+
+        document.querySelectorAll('.task-priority').forEach(select => {
+            select.addEventListener('change', async (e) => {
+                const taskId = e.target.dataset.id;
+                const newPriority = e.target.value;
+
+                try {
+                const resp = await fetch(`/update-priority/${taskId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ priority: newPriority })
+                });
+
+                if (!resp.ok) {
+                    console.error('Error updating priority:', await resp.text());
+                }
+                } catch (err) {
+                console.error('Network error:', err);
+                }
+            });
+        });
+
+        document.querySelectorAll('.mark-done').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const taskId = e.target.dataset.id;
+
+                try {
+                const resp = await fetch(`/mark-done/${taskId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ priority: 1 }) // set to Low
+                });
+
+                if (resp.ok) {
+                    // Change button appearance
+                    e.target.classList.add('done');
+                    e.target.textContent = "✔ Done";
+                } else {
+                    console.error('Error marking as done:', await resp.text());
+                }
+                } catch (err) {
+                console.error('Network error:', err);
+                }
+            });
+        });
+
+        document.getElementById("prioritize_func").addEventListener("change", async (e) => {
+            const sortOption = e.target.value;
+
+            try {
+                // Call your backend with the chosen sort option
+                const resp = await fetch(`/sort/${sortOption}`);
+                const tasks = await resp.json();
+
+                // TODO: re-render tasks in the UI
+                console.log("Sorted tasks:", tasks);
+            } catch (err) {
+                console.error("Error fetching sorted tasks:", err);
+            }
+        });
+
+        
+
+
+
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>

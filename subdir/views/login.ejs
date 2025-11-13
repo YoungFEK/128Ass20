@@ -243,7 +243,9 @@
     if (urlParams.get('message') === 'resetSuccess') {
         alert('Reset  successfully!');
     }
-
+     if (urlParams.get('error') === 'invalid') {
+        alert('Incorrect Username or Password');
+    }
 </script>
 </body>
 </html>

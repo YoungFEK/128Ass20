@@ -141,10 +141,10 @@
             <h1>Change Password</h1>
             <form action="/changePassword" method="POST">
                 <label>Old password</label>
-                <input type="text" name="old_password" id="old_password" required />
+                <input type="password" name="old_password" id="old_password" required />
 
                 <label>New Password</label>
-                <input type="text" name="new_password" id="new_password" required />
+                <input type="password" name="new_password" id="new_password" required />
 
                 <input type="hidden" name="user_id" value="<%= user._id %>">
 
@@ -156,6 +156,9 @@
 </body>
 
 <script>
-
+    const urlParams = new URLSearchParams(window.location.search);
+     if (urlParams.get('error') === 'invalid') {
+        alert('Incorrect Password');
+    }
 </script>
 </html>
