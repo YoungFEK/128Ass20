@@ -95,9 +95,54 @@
         </form>
     </div>
 
-   
+            <% for (var i=0; i< users.length; i++){ %>
+                <button class ="addCollabButton" data-id = "<%- tdlId %>" value="<%= users[i]._id %>"><%- users[i].username %></button>
+            <% } %>
+
+            <button class="logout-btn" onclick="window.location.href='/login'">Log Out</button>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    <script>
+
+         document.querySelectorAll('.addCollabButton').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+            
+            const todoListId = e.target.dataset.id;   // data-id value
+            const userId = e.target.value;       // button value attribute
+
+            try {
+                const resp = await fetch(`/update-userTdlArray`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId: userId, todoListId: todoListId }),
+                });
+
+                if (!resp.ok) {
+                console.error('Error updating task:', await resp.text());
+                }
+            } catch (err) {
+                console.error('Network error:', err);
+            }
+            });
+        });
+
+
         // Save task name
         document.querySelectorAll('.task-input').forEach(input => {
             input.addEventListener('input', async (e) => {

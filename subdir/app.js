@@ -271,9 +271,11 @@ app.get("/taskList/:id", async(req, res) => {
         return res.status(404).send("To-Do List not found");
     }
 
+    const foundUsers = await User.find({});
+
     const userTasks = todoList.tasks;
 
-    res.render("taskList", { tasks: userTasks});
+    res.render("taskList", { tasks: userTasks, users: foundUsers, tdlId: todoList._id });
 
 });
 
@@ -311,6 +313,31 @@ app.post("/createTodoList", async (req, res) => {
     res.redirect("/loginPage");
 
 });
+
+app.put("/update-user-TdlArray", async (req, res) => {
+    try {
+        const { id, name } = req.body;
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { name: name },
+            { new: true } // returns updated document
+        );
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        // Re-login the user to refresh session data
+        req.login(updatedUser, (err) => {
+            if (err) {
+                console.error("Error re-logging user:", err);
+                return res.status(500).json({ success: false, message: "Re-login failed" });
+            }
+            res.json({ success: true, user: updatedUser });
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Could not update username" });
+    }
+}); 
 
 
 
