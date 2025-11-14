@@ -344,6 +344,7 @@ app.post("/addTask", async (req, res) => {
   const tdlId = req.body.tdlId;
 
   if (taskName) {
+
     const task = {
         name: taskName, 
         dueDate: undefined,
@@ -352,15 +353,22 @@ app.post("/addTask", async (req, res) => {
         createdAt: Date.now(),
     };
 
+    const todoList = await TodoList.findById(tdlId);
+    if (!todoList) {
+        return res.status(404).send("To-Do List not found");
+    }
+    todoList.tasks.push(task);
+
     try {
-      await task.save();
-      res.redirect("/");
+      await todoList.save();
+      res.redirect("/taskList/" + tdlId);
+
     } catch (err) {
       console.error(err);
       res.status(500).send("Could not save task");
     }
   } else {
-    res.redirect("/");
+      res.redirect("/taskList/" + tdlId);
   }
 });
 
