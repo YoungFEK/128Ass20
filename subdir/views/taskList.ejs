@@ -56,7 +56,7 @@
                         </button>
                         
                         <p>
-                            <input type="text" class="task-input" value="<%= tasks[i].name %>" data-id="<%= i %>">
+                            <input type="text" class="task-input" value="<%= tasks[i].name %>" data-id="<%= i %>" data-tdlId="<%- tdl._id %>">
                         </p>
 
                         <input type="date" class="task-date" data-id="<%= i %>" value="<%= tasks[i].dueDate ? tasks[i].dueDate.toISOString().substring(0,10) : '' %>">
@@ -93,7 +93,7 @@
 
             <input type="hidden" name="tdlId" value="<%- tdl._id %>">
             
-            <button type="submit" name="submit">+</button>
+            <button type="submit" class ="addtaskbutton" name="submit">+</button>
         </form>
     </div>
 
@@ -156,6 +156,7 @@
             input.addEventListener('input', async (e) => {
             const taskId = e.target.dataset.id;   // get task id from data-id
             const newName = e.target.value;       // get the new task name
+            const tdlId = e.target.dataset.tdlId; // get todo list id from data-tdlId
 
             try {
                 const resp = await fetch(`/update-task`, {
@@ -163,7 +164,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name: newName, id: taskId }),
+                body: JSON.stringify({ name: newName, id: taskId, tdlId: tdlId }),
                 });
 
                 if (!resp.ok) {

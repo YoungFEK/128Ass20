@@ -373,6 +373,33 @@ app.post("/addTask", async (req, res) => {
 });
 
 
+//PUT REQUEST for updatign task
+app.put("/update-task", async (req, res) => {
+  const taskId = req.body.id;
+  const newName = req.body.name;
+  const tdlId = req.body.tdlId;
+
+  try {
+
+    
+
+    const todoList = await TodoList.findById(tdlId);
+    if (!todoList) {
+        return res.status(404).send("To-Do List not found");
+    }
+
+    todoList.tasks[taskId] = newName;
+
+    await todoList.save();
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "Could not update task" });
+  }
+});
+
 
 
 
