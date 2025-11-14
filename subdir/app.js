@@ -43,10 +43,6 @@ passport.deserializeUser(User.deserializeUser());
 
 
 
-// Showing home page
-app.get("/", function (req, res) {
-    res.render("home");
-});
 
 // Showing register form
 app.get("/register", function (req, res) {
@@ -275,7 +271,7 @@ app.get("/taskList/:id", async(req, res) => {
 
     const userTasks = todoList.tasks;
 
-    res.render("taskList", { tasks: userTasks, users: foundUsers, tdlId: todoList._id });
+    res.render("taskList", { tasks: userTasks, users: foundUsers, tdl: todoList });
 
 });
 
@@ -315,30 +311,58 @@ app.post("/createTodoList", async (req, res) => {
 });
 
 app.put("/update-user-TdlArray", async (req, res) => {
-    try {
-        const { id, name } = req.body;
-        const updatedUser = await User.findByIdAndUpdate(
-            id,
-            { name: name },
-            { new: true } // returns updated document
-        );
-        if (!updatedUser) {
-            return res.status(404).json({ success: false, message: "User not found" });
-        }
-        // Re-login the user to refresh session data
-        req.login(updatedUser, (err) => {
-            if (err) {
-                console.error("Error re-logging user:", err);
-                return res.status(500).json({ success: false, message: "Re-login failed" });
-            }
-            res.json({ success: true, user: updatedUser });
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: "Could not update username" });
+    const { userId, todoListId, listName } = req.body;
+
+    const user = await User.findById(
+            userId
+    );
+
+    if (!user) {
+       return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    const todoListObject = {
+        id: todoListId,
+        name: listName
+    }  
+
+    // in case tdl.id.toString() === todoListId.toString()
+    const exists = user.tdListIds.some(tdl => tdl.id === todoListId);
+
+    //add functionality to prevent duplicate entries
+    if (!exists) {
+        user.tdListIds.push(todoListObject);
+        await user.save();
+
+    } 
 }); 
 
+
+// POST route for adding task
+app.post("/addTask", async (req, res) => {
+  const taskName = req.body.newTask;
+  const tdlId = req.body.tdlId;
+
+  if (taskName) {
+    const task = {
+        name: taskName, 
+        dueDate: undefined,
+        dueTime: undefined,
+        priority: undefined,
+        createdAt: Date.now(),
+    };
+
+    try {
+      await task.save();
+      res.redirect("/");
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Could not save task");
+    }
+  } else {
+    res.redirect("/");
+  }
+});
 
 
 

@@ -86,17 +86,24 @@
                                 send request -->
         <!-- And method defines the "type" 
                                 of request -->
-        <form class="item " action="/" method="POST">
+        <form class="item " action="/addTask" method="POST">
             <input type="text" name="newTask" 
                 autocomplete="off" 
                 placeholder="Add a New Task Here">
+
+            <input type="hidden" name="tdlId" value="<%- tdl._id %>">
             
             <button type="submit" name="submit">+</button>
         </form>
     </div>
 
             <% for (var i=0; i< users.length; i++){ %>
-                <button class ="addCollabButton" data-id = "<%- tdlId %>" value="<%= users[i]._id %>"><%- users[i].username %></button>
+                <button class ="addCollabButton" 
+                data-id = "<%- tdl._id %>" 
+                value="<%= users[i]._id %>" 
+                data-name = "<%- tdl.listName %>">
+                <%- users[i].username %>
+                </button>
             <% } %>
 
             <button class="logout-btn" onclick="window.location.href='/login'">Log Out</button>
@@ -123,14 +130,15 @@
             
             const todoListId = e.target.dataset.id;   // data-id value
             const userId = e.target.value;       // button value attribute
+            const listName = e.target.dataset.name; // data-name value
 
             try {
-                const resp = await fetch(`/update-userTdlArray`, {
+                const resp = await fetch(`/update-user-TdlArray`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userId: userId, todoListId: todoListId }),
+                body: JSON.stringify({ userId: userId, todoListId: todoListId, listName: listName }),
                 });
 
                 if (!resp.ok) {
