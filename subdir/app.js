@@ -137,10 +137,20 @@ app.post("/reset-password", async (req, res) => {
 // Showing login form
 app.get("/login", function (req, res) {
     res.render("login");
+
+    // to redirect to login page if already authenticated
+    // if (!req.isAuthenticated()){
+    //     res.render("login");
+    // }else{
+    //     res.redirect("/loginPage");
+    // }
 });
 
 
-
+app.post("/loginPage", passport.authenticate("local", {
+    successRedirect: "/loginPage",
+    failureRedirect: "/login?error=invalid"
+}));
 
 //examine isLoggedIn
 app.get("/loginPage", isLoggedIn, async function (req, res) {
@@ -160,18 +170,10 @@ app.get("/loginPage", isLoggedIn, async function (req, res) {
     }
 });
 
-// app.post("/login", passport.authenticate("local", {     //figure out why not woring
-
-app.post("/loginPage", passport.authenticate("local", {
-    successRedirect: "/loginPage",
-    failureRedirect: "/login?error=invalid"
-}));
-
-
 app.get("/logout", function (req, res) {
     req.logout(function (err) {
         if (err) { return next(err); }
-        res.redirect('/');
+        res.redirect('/login');
     });
 });
 
@@ -321,19 +323,18 @@ app.put("/update-user-TdlArray", async (req, res) => {
        return res.status(404).json({ success: false, message: "User not found" });
     }
 
+    const tdListIdObject = new mongoose.Types.ObjectId(todoListId);
+
     const todoListObject = {
-        id: todoListId,
+        id: tdListIdObject,
         name: listName
     }  
-
-    // in case tdl.id.toString() === todoListId.toString()
-    const exists = user.tdListIds.some(tdl => tdl.id === todoListId);
-
-    //add functionality to prevent duplicate entries
+    
+    // prevent duplicate entries
+    const exists = user.tdListIds.some(tdl => tdListIdObject.equals(tdl.id));
     if (!exists) {
         user.tdListIds.push(todoListObject);
         await user.save();
-
     } 
 }); 
 
