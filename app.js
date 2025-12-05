@@ -11,7 +11,7 @@ let app = express();
 app.use(express.static("public"));
 
 
-mongoose.connect("mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/?appName=Cluster0");
+mongoose.connect("mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0");
 // mongodb+srv://user0:<db_password>@cluster0.k1nidqh.mongodb.net/?appName=Cluster0
 // mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/
 
@@ -27,10 +27,10 @@ app.use(require("express-session")({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: "mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/?appName=Cluster0",
+    mongoUrl: "mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0",
     ttl: 24 * 60 * 60 // 1 day
   }),
-  cookie: { secure: true, maxAge: 1000 * 60 * 60 * 24 }
+  cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 }
 
 }));
 
