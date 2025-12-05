@@ -11,8 +11,10 @@ let app = express();
 app.use(express.static("public"));
 
 
-mongoose.connect("mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/");
-// mongodb+srv://user0:EdOzq96aLvip7zQz@cluster0.muf5gu3.mongodb.net/
+mongoose.connect("mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/?appName=Cluster0");
+// mongodb+srv://user0:<db_password>@cluster0.k1nidqh.mongodb.net/?appName=Cluster0
+// mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/
+
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
