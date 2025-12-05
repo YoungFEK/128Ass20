@@ -30,7 +30,7 @@ app.use(require("express-session")({
     mongoUrl: "mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/?appName=Cluster0",
     ttl: 24 * 60 * 60 // 1 day
   }),
-  cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 }
+  cookie: { secure: true, maxAge: 1000 * 60 * 60 * 24 }
 
 }));
 
