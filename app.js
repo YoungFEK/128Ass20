@@ -7,11 +7,14 @@ LocalStrategy = require("passport-local"),
 passportLocalMongoose = require("passport-local-mongoose");
 const User = require("./model/User");
 const TodoList = require("./model/list");
+
+require("dotenv").config();
+
 let app = express();
 app.use(express.static("public"));
 
 
-mongoose.connect("mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0");
+mongoose.connect(process.env.MONGO_URI);
 // mongodb+srv://user0:<db_password>@cluster0.k1nidqh.mongodb.net/?appName=Cluster0
 // mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/
 
@@ -23,11 +26,11 @@ app.use(express.json());
 const MongoStore = require('connect-mongo');
 
 app.use(require("express-session")({
-  secret: "Rusty is a dog",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: "mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0",
+    mongoUrl: process.env.MONGO_URI,
     ttl: 24 * 60 * 60 // 1 day
   }),
   cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 }
