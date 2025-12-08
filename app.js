@@ -15,8 +15,6 @@ app.use(express.static("public"));
 
 
 mongoose.connect(process.env.MONGO_URI);
-// mongodb+srv://user0:<db_password>@cluster0.k1nidqh.mongodb.net/?appName=Cluster0
-// mongodb+srv://user0:1@cluster0.k1nidqh.mongodb.net/
 
 
 app.set("view engine", "ejs");
@@ -274,11 +272,15 @@ app.get("/taskList/:id", async(req, res) => {
         return res.status(404).send("To-Do List not found");
     }
 
-    const foundUsers = await User.find({});
+    const listIdObjectType = new mongoose.Types.ObjectId(req.params.id);
+
+    const availableUsers = await User.find({tdListIds: {$not: {$elemMatch: { id: listIdObjectType }}}});
+    const addedUsers = await User.find({tdListIds: {$elemMatch: { id: listIdObjectType }}});
+
 
     const userTasks = todoList.tasks;
 
-    res.render("taskList", { tasks: userTasks, users: foundUsers, tdl: todoList });
+    res.render("taskList", { tasks: userTasks, users: availableUsers, tdl: todoList, addedUsers: addedUsers });
 
 });
 
@@ -350,7 +352,6 @@ app.post("/addTask", async (req, res) => {
   const tdlId = req.body.tdlId;
 
   if (taskName) {
-
     const task = {
         name: taskName, 
         dueDate: undefined,
@@ -358,7 +359,6 @@ app.post("/addTask", async (req, res) => {
         priority: undefined,
         createdAt: Date.now(),
     };
-
     const todoList = await TodoList.findById(tdlId);
     if (!todoList) {
         return res.status(404).send("To-Do List not found");

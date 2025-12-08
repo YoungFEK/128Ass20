@@ -1,4 +1,4 @@
-<!-- index.ejs -->
+<!-- taskList.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,16 +13,54 @@
 </head>
 
 <body>
+
+    <div class="right-sidebar" style="display:none;right:0;" id="rightMenu">
+        <button id = "right-sidebr-closebtn" class="right-sidebr-closebtn" onclick="closeRightMenu()">Close &times;</button>
+
+
+        <div id = "available-users" class="available-users">
+             <!-- if the user is added don't print this -->
+            <% for (var i=0; i< users.length; i++){ %>
+                 <!-- display if todolist is not in user array of todolists -->
+                     <div class = "user-section">
+                        <p> <%- users[i].username %> </p>
+                        <button class ="addCollabButton" 
+                        data-id = "<%- tdl._id %>" 
+                        value="<%= users[i]._id %>" 
+                        data-name = "<%- tdl.listName %>">
+                        Add
+                        </button>
+                    </div>
+            <% } %>
+        </div>
+
+        <div id = "added-users" class="added-users">
+            <p>Added users</p>
+            <% for (var i=0; i< addedUsers.length; i++){ %>
+                 <!-- display if todolist is in user array of todolists -->
+                     <div class = "user-section">
+                        <p> <%- addedUsers[i].username %> </p>
+                    </div>
+            <% } %>
+        </div>
+
+        <div>
+
+
+        </div>
+
+
+    </div>
+
     <div class="box" id="heading">
         <h1 style="color: #ffffff">
             To-Do List
         </h1>
     </div>
 
-    <div class="box">
+    <button class="add-collaborator-button" id="add-collaborator-button" onclick="openRightMenu()">Add Collaborator</button>
 
-        <!-- We check if the object receieved is not
-            empty, else there will be an error -->
+    <div class="box">
 
         <!-- To avoid error, we simply use if-else, 
             empty object is handled in if block -->
@@ -30,7 +68,6 @@
             <p style="text-align: center;">
                 No Task Added Yet
             </p>
-
         <% } else { %>
 
             <select id="prioritize_func">
@@ -38,6 +75,7 @@
                 <option value="2" >Due Date</option>
                 <option value="3" >Priority</option>
             </select>
+
 
             <% for (var i=0; i< tasks.length; i++){ %>
 
@@ -266,9 +304,13 @@
             }
         });
 
-        
+        function openRightMenu() {
+            document.getElementById("rightMenu").style.display = "block";
+        }
 
-
+        function closeRightMenu() {
+            document.getElementById("rightMenu").style.display = "none";
+        }
 
 
 
