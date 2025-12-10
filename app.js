@@ -323,76 +323,50 @@ app.get("/taskList/:id", async(req, res) => {
 
 });
 
-// app.post("/createTodoList", async (req, res) => {
-
-//     const listName = req.body.newList_Name;
-//     const userId =  req.body.user_id;
-    
-
-//     const newTodoList= new TodoList({
-//             listName: listName,
-//             tasks: []
-//     });
-
-//     await newTodoList.save();
-
-//     // for storing to do list name and id in user
-//     const todoListObject = {
-//         id: newTodoList._id,
-//         name: newTodoList.listName
-//     }
-
-//     const user = await User.findById(
-//             userId
-//     );
-
-//     if (!user) {
-//        return res.status(404).json({ success: false, message: "User not found" });
-//     }
-
-//     user.tdListIds.push(todoListObject); 
-
-//     await user.save();
-
-//     // res.redirect("/loginPage");
-
-//      // create added user element
-//     const addedDiv = document.createElement('div');
-//     addedDiv.className = 'todolist-item';
-//     addedDiv.innerHTML = `<button onclick="window.location.href='/taskList/tdl_Array[i].id'"> {name} </button>`;
-
-//     document.getElementById('added-users').appendChild(addedDiv);
-    
-
-// });
-
 
 app.post("/createTodoList", async (req, res) => {
-  const { newList_Name, user_id } = req.body;
 
-  const newTodoList = new TodoList({
-    listName: newList_Name,
-    tasks: []
-  });
+    const listName = req.body.newList_Name;
+    const userId =  req.body.user_id;
+    
 
-  await newTodoList.save();
+    const newTodoList= new TodoList({
+            listName: listName,
+            tasks: []
+    });
 
-  const todoListObject = {
-    id: newTodoList._id,
-    name: newTodoList.listName
-  };
+    await newTodoList.save();
 
-  const user = await User.findById(user_id);
-  user.tdListIds.push(todoListObject);
-  await user.save();
+    // for storing to do list name and id in user
+    const todoListObject = {
+        id: newTodoList._id,
+        name: newTodoList.listName
+    }
 
-  // ✅ RETURN DATA FOR FRONTEND
-  res.json({
-    success: true,
-    id: newTodoList._id,
-    name: newTodoList.listName
-  });
+    const user = await User.findById(
+            userId
+    );
+
+    if (!user) {
+       return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.tdListIds.push(todoListObject); 
+
+    await user.save();
+
+    // res.redirect("/loginPage");
+
+     // create added user element
+    const addedDiv = document.createElement('div');
+    addedDiv.className = 'todolist-item';
+    addedDiv.innerHTML = `<button onclick="window.location.href='/taskList/tdl_Array[i].id'"> {name} </button>`;
+
+    document.getElementById('added-users').appendChild(addedDiv);
+    
+
 });
+
 
 
 

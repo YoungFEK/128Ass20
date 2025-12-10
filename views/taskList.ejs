@@ -39,11 +39,14 @@
             
         </div>
 
-        <form id="create-todolist-form">
+        <form action="/createTodoList" method="POST">
             <input type="text" name = "newList_Name" placeholder="Add a New To-do list here" required> 
             <input type="hidden" name="user_id" value="<%- userId %>">
+            <!-- should update displayed list of todo lists for each user -->
             <button type="submit" name="submit">create</button>
         </form>
+
+
     </div>
 
     <!-- right sidebar division displaying users both added and unadded -->
@@ -358,50 +361,6 @@
         function openLeftMenu() {
             document.getElementById("leftMenu").style.display = "block";
         }
-
-        
-
-        document.getElementById("create-todolist-form")
-            .addEventListener("submit", async (e) => {
-                e.preventDefault(); // ✅ stop page reload
-
-                const form = e.target;
-                const listName = form.newList_Name.value;
-                const userId = form.user_id.value;
-
-                try {
-                const resp = await fetch("/createTodoList", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                    newList_Name: listName,
-                    user_id: userId
-                    })
-                });
-
-                const data = await resp.json();
-                if (!data.success) return;
-
-                // ✅ CREATE NEW BUTTON
-                const container = document.querySelector(".todolist-division");
-
-                const div = document.createElement("div");
-                div.className = "todolist-item";
-                div.innerHTML = `
-                    <button onclick="window.location.href='/taskList/${data.id}'">
-                    ${data.name}
-                    </button>
-                `;
-
-                container.appendChild(div);
-
-                // ✅ clear input
-                form.newList_Name.value = "";
-
-                } catch (err) {
-                console.error("Create list failed:", err);
-                }
-        });
 
 
 
