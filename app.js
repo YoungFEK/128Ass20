@@ -372,14 +372,7 @@ app.post("/createTodoList", async (req, res) => {
 
     await user.save();
 
-    // res.redirect("/loginPage");
-
-     // create added user element
-    const addedDiv = document.createElement('div');
-    addedDiv.className = 'todolist-item';
-    addedDiv.innerHTML = `<button onclick="window.location.href='/taskList/tdl_Array[i].id'"> {name} </button>`;
-
-    document.getElementById('added-users').appendChild(addedDiv);
+    res.redirect("/taskList/" + newTodoList._id);
     
 
 });
