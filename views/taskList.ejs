@@ -361,19 +361,25 @@
         }
 
          window.addEventListener('popstate', function() {
-             // Simple session check on back button
-             setTimeout(function() {
-                 fetch('/check-session')
-                     .then(response => {
-                         if (!response.ok) {
-                             window.location.href = '/login';
-                         }
-                     })
-                     .catch(() => {
+             fetch('/check-session')
+                 .then(response => {
+                     if (!response.ok) {
+                         // Set flags for login page
+                         localStorage.setItem('wasLoggedOut', 'true');
+                         localStorage.setItem('logoutReason', 'expired');
+                         localStorage.setItem('logoutTime', Date.now().toString());
+
                          window.location.href = '/login';
-                     });
-             }, 10);
+                     }
+                 })
+                 .catch(() => {
+                     // Network error - still set flags
+                     localStorage.setItem('wasLoggedOut', 'true');
+                     localStorage.setItem('logoutReason', 'network_error');
+                     window.location.href = '/login';
+                 });
          });
+
          function logout() {
              // Set flags for login page toast
              localStorage.setItem('wasLoggedOut', 'true');
