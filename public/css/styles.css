@@ -183,24 +183,13 @@ button {
   font-size: 0.95rem;
 }
 .profile-button {
-  background: linear-gradient(135deg, #8b6b4d, #a38b6d);
+  background: linear-gradient(135deg, #a38b6d, #8b6b4d);
   color: white;
   position: fixed;
   top: 20px;
-  right: 200px;
+  right: 370px;
   z-index: 100;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
   box-shadow: 0 4px 12px rgba(139, 107, 77, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
 }
 
 .profile-button::before {
