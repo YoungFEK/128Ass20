@@ -17,12 +17,10 @@
     <div class="left-sidebar"  style="display:none" id="leftMenu">
         <button onclick="closeLeftMenu()" class="left-sidebr-closebtn">Close &times;</button>
         
-        <!-- <div> -->
+        <div class="todolist-division">
 
             <!-- We check if the object receieved is not
                 empty, else there will be an error -->
-            <!-- To avoid error, we simply use if-else, 
-                empty object is handled in if block -->
             <% if (tdl_Array.length===0) {%>
                 <p style="text-align: center;">
                     No To do list created yet
@@ -31,18 +29,21 @@
             <% } else { %>
 
                 <% for (var i=0; i< tdl_Array.length; i++){ %>
-                    <button onclick="window.location.href='/taskList/<%- tdl_Array[i].id %>'"><%- tdl_Array[i].name %></button>
-                        
+
+                    <div class="todolist-item">
+                        <button onclick="window.location.href='/taskList/<%- tdl_Array[i].id %>'"><%- tdl_Array[i].name %></button>
+                    </div>    
+
                 <% } %>
             <% } %>
-                    
-            <form action="/createTodoList" method="POST">
-                <input type="text" name = "newList_Name" placeholder="Add a New To-do list here" required> 
-                <input type="hidden" name="user_id" value="<%- userId %>">
-                <button type="submit" name="submit">create</button>
-            </form>
             
-        <!-- </div> -->
+        </div>
+
+        <form id="create-todolist-form">
+            <input type="text" name = "newList_Name" placeholder="Add a New To-do list here" required> 
+            <input type="hidden" name="user_id" value="<%- userId %>">
+            <button type="submit" name="submit">create</button>
+        </form>
     </div>
 
     <!-- right sidebar division displaying users both added and unadded -->
@@ -364,6 +365,49 @@
         function openLeftMenu() {
             document.getElementById("leftMenu").style.display = "block";
         }
+
+        document.getElementById("create-todolist-form")
+            .addEventListener("submit", async (e) => {
+                e.preventDefault(); // ✅ stop page reload
+
+                const form = e.target;
+                const listName = form.newList_Name.value;
+                const userId = form.user_id.value;
+
+                try {
+                const resp = await fetch("/createTodoList", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                    newList_Name: listName,
+                    user_id: userId
+                    })
+                });
+
+                const data = await resp.json();
+                if (!data.success) return;
+
+                // ✅ CREATE NEW BUTTON
+                const container = document.querySelector(".todolist-division");
+
+                const div = document.createElement("div");
+                div.className = "todolist-item";
+                div.innerHTML = `
+                    <button onclick="window.location.href='/taskList/${data.id}'">
+                    ${data.name}
+                    </button>
+                `;
+
+                container.appendChild(div);
+
+                // ✅ clear input
+                form.newList_Name.value = "";
+
+                } catch (err) {
+                console.error("Create list failed:", err);
+                }
+        });
+
 
 
     </script>
