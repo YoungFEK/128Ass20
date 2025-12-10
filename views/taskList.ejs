@@ -14,14 +14,44 @@
 
 <body>
 
+    <div class="left-sidebar"  style="display:none" id="leftMenu">
+        <button onclick="closeLeftMenu()" class="left-sidebr-closebtn">Close &times;</button>
+        
+        <!-- <div> -->
+
+            <!-- We check if the object receieved is not
+                empty, else there will be an error -->
+            <!-- To avoid error, we simply use if-else, 
+                empty object is handled in if block -->
+            <% if (tdl_Array.length===0) {%>
+                <p style="text-align: center;">
+                    No To do list created yet
+                </p>
+
+            <% } else { %>
+
+                <% for (var i=0; i< tdl_Array.length; i++){ %>
+                    <button onclick="window.location.href='/taskList/<%- tdl_Array[i].id %>'"><%- tdl_Array[i].name %></button>
+                        
+                <% } %>
+            <% } %>
+                    
+            <form action="/createTodoList" method="POST">
+                <input type="text" name = "newList_Name" placeholder="Add a New To-do list here" required> 
+                <input type="hidden" name="user_id" value="<%- userId %>">
+                <button type="submit" name="submit">create</button>
+            </form>
+            
+        <!-- </div> -->
+    </div>
+
+    <!-- right sidebar division displaying users both added and unadded -->
     <div class="right-sidebar" style="display:none;right:0;" id="rightMenu">
         <button id = "right-sidebr-closebtn" class="right-sidebr-closebtn" onclick="closeRightMenu()">Close &times;</button>
-
-
         <div id = "available-users" class="available-users">
-             <!-- if the user is added don't print this -->
+            <p>Users not added</p>
+            <!-- displays users that do not have this todo list in their array of todo lists ( tdListIds)-->
             <% for (var i=0; i< users.length; i++){ %>
-                 <!-- display if todolist is not in user array of todolists -->
                      <div class = "user-section">
                         <p> <%- users[i].username %> </p>
                         <button class ="addCollabButton" 
@@ -37,19 +67,12 @@
         <div id = "added-users" class="added-users">
             <p>Added users</p>
             <% for (var i=0; i< addedUsers.length; i++){ %>
-                 <!-- display if todolist is in user array of todolists -->
+            <!-- displays users that have this todo list in their array of todo lists ( tdListIds)-->
                      <div class = "user-section">
                         <p> <%- addedUsers[i].username %> </p>
                     </div>
             <% } %>
         </div>
-
-        <div>
-
-
-        </div>
-
-
     </div>
 
     <div class="box" id="heading">
@@ -59,6 +82,8 @@
     </div>
 
     <button class="add-collaborator-button" id="add-collaborator-button" onclick="openRightMenu()">Add Collaborator</button>
+    <!-- replace To do list label with hamburger -->
+    <button class="access-todolist-button" id="access-todolist-button" onclick="openLeftMenu()">Todo Lists</button>
 
     <div class="box">
 
@@ -165,7 +190,7 @@
 
          document.querySelectorAll('.addCollabButton').forEach(btn => {
             btn.addEventListener('click', async (e) => {
-            
+            const button = e.target;
             const todoListId = e.target.dataset.id;   // data-id value
             const userId = e.target.value;       // button value attribute
             const listName = e.target.dataset.name; // data-name value
@@ -182,9 +207,29 @@
                 if (!resp.ok) {
                 console.error('Error updating task:', await resp.text());
                 }
+
+                const data = await resp.json();
+
+                // takes the nearest ancestor which is div user section
+                const userSection = button.closest('.user-section');
+
+                // create added user element
+                const addedDiv = document.createElement('div');
+                addedDiv.className = 'user-section';
+                addedDiv.innerHTML = `<p>${data.username}</p>`;
+
+                document.getElementById('added-users').appendChild(addedDiv);
+
+                // remove from available users
+                userSection.remove();
+
             } catch (err) {
                 console.error('Network error:', err);
             }
+
+
+            
+
             });
         });
 
@@ -312,10 +357,13 @@
             document.getElementById("rightMenu").style.display = "none";
         }
 
+        function closeLeftMenu() {
+            document.getElementById("leftMenu").style.display = "none";
+        }
 
-
-
-
+        function openLeftMenu() {
+            document.getElementById("leftMenu").style.display = "block";
+        }
 
 
     </script>

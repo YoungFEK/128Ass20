@@ -264,6 +264,13 @@ app.put("/updateProfileName", isLoggedIn, async (req, res) => {
 //ADDED METHODS IN RELATION TO MERGING TO DO LIST, VERY FEW LINES CAN BE FOUND ABOVE
 app.get("/taskList/:id", async(req, res) => {
 
+    //integrating home.ejs and taskList.ejs
+
+    //extracting user information
+    const user = await User.findById(req.user._id);
+    const userId = req.user._id;
+
+
     //find the specific to do list by its id
     //access its tasks array
     //render the task list page with the tasks array
@@ -280,7 +287,7 @@ app.get("/taskList/:id", async(req, res) => {
 
     const userTasks = todoList.tasks;
 
-    res.render("taskList", { tasks: userTasks, users: availableUsers, tdl: todoList, addedUsers: addedUsers });
+    res.render("taskList", { tasks: userTasks, users: availableUsers, tdl: todoList, addedUsers: addedUsers, userId: userId, tdl_Array: user.tdListIds});
 
 });
 
@@ -343,6 +350,12 @@ app.put("/update-user-TdlArray", async (req, res) => {
         user.tdListIds.push(todoListObject);
         await user.save();
     } 
+
+    res.json({
+        success: true,
+        userId,
+        username: user.username
+    });
 }); 
 
 
