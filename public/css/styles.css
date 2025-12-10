@@ -182,15 +182,6 @@ button {
   transition: all 0.3s ease;
   font-size: 0.95rem;
 }
-.profile-button {
-  background: linear-gradient(135deg, #a38b6d, #8b6b4d);
-  color: white;
-  position: fixed;
-  top: 20px;
-  right: 370px;
-  z-index: 100;
-  box-shadow: 0 4px 12px rgba(139, 107, 77, 0.3);
-}
 
 .profile-button::before {
   content: "👤";
@@ -251,7 +242,7 @@ button {
   color: white;
   position: fixed;
   top: 20px;
-  right: 370px;
+  right: 0;
   z-index: 100;
   box-shadow: 0 4px 12px rgba(139, 107, 77, 0.3);
 }
@@ -296,6 +287,16 @@ button {
   bottom: 20px;
   right: 20px;
   border: 2px solid #bcaaa4;
+}
+
+.profile-button {
+  background: linear-gradient(135deg, #a38b6d, #8b6b4d);
+  color: white;
+  position: fixed;
+  bottom: 20px;
+  right: 40px;
+  /* z-index: 100; */
+  box-shadow: 0 4px 12px rgba(139, 107, 77, 0.3);
 }
 
 .logout-btn:hover {
