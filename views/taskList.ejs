@@ -162,7 +162,7 @@
     </div>
 
            
-            <button class="profile-btn" onclick="window.location.href='/secret'">My Profile</button>
+
             <button class="logout-btn" onclick="window.location.replace('/logout')">Log Out</button>
 
 
@@ -359,21 +359,38 @@
             document.getElementById("leftMenu").style.display = "block";
         }
 
-       window.addEventListener('popstate', function() {
-        // Small delay to ensure everything is loaded
-        setTimeout(function() {
-            fetch('/check-session')
-                .then(response => {
-                    if (!response.ok) {
-                        alert('Your session has expired. Please log in again.');
-                        window.location.href = '/login';
-                    }
-                })
-                .catch(() => {
-                    // Ignore network errors
-                });
-        }, 100);
-    });
+         window.addEventListener('popstate', function() {
+             fetch('/check-session')
+                 .then(response => {
+                     if (!response.ok) {
+                         // Set flags for login page
+                         localStorage.setItem('wasLoggedOut', 'true');
+                         localStorage.setItem('logoutReason', 'expired');
+                         localStorage.setItem('logoutTime', Date.now().toString());
+
+                         window.location.href = '/login';
+                     }
+                 })
+                 .catch(() => {
+                     // Network error - still set flags
+                     localStorage.setItem('wasLoggedOut', 'true');
+                     localStorage.setItem('logoutReason', 'network_error');
+                     window.location.href = '/login';
+                 });
+         });
+
+         function logout() {
+             // Set flags for login page toast
+             localStorage.setItem('wasLoggedOut', 'true');
+             localStorage.setItem('logoutReason', 'logout');
+             localStorage.setItem('logoutTime', Date.now().toString());
+
+             // Optional: Clear form data
+             sessionStorage.removeItem('lastUsername');
+
+             // Redirect to logout endpoint
+             window.location.href = '/logout';
+         }
 
 
 

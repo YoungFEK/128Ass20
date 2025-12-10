@@ -344,7 +344,6 @@
 <script>
     // Toast System
     let toastTimeout;
-    let currentToastId = 0;
 
     // Toast icons for different types
     const toastIcons = {
@@ -379,15 +378,14 @@
         // Show toast
         setTimeout(() => {
             toast.classList.add('show');
-        }, 10);
+        }, 100);
 
         // Auto hide after duration
         toastTimeout = setTimeout(() => {
             hideToast();
         }, duration);
 
-        currentToastId++;
-        return currentToastId;
+        return true;
     }
 
     function hideToast() {
@@ -396,92 +394,174 @@
         if (toastTimeout) clearTimeout(toastTimeout);
     }
 
-    // Check URL parameters and show appropriate toasts
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
+    // ===== SESSION AND LOGOUT DETECTION =====
 
-        // Registration success
-        if (urlParams.get('registered') === 'success') {
-            setTimeout(() => {
-                showToast('Account created successfully! Please log in.', 'success', 4000);
-            }, 300);
+    // Check localStorage for logout flags
+    function checkForLogoutFlags() {
+        const wasLoggedOut = localStorage.getItem('wasLoggedOut');
+        const logoutReason = localStorage.getItem('logoutReason');
+        const logoutTime = localStorage.getItem('logoutTime');
+
+        if (wasLoggedOut === 'true') {
+            const messages = {
+                'logout': 'You have been logged out successfully.',
+                'expired': 'Your session has expired. Please log in again.',
+                'timeout': 'Session timed out due to inactivity.',
+                'security': 'Logged out for security reasons.'
+            };
+
+            const message = messages[logoutReason] || 'Please log in to continue.';
+
+            // Check if logout was recent (within last 10 seconds)
+            if (logoutTime) {
+                const timeDiff = Date.now() - parseInt(logoutTime);
+                if (timeDiff < 10000) { // 10 seconds
+                    setTimeout(() => {
+                        showToast(message, 'info', 5000);
+                    }, 500);
+                }
+            } else {
+                setTimeout(() => {
+                    showToast(message, 'info', 5000);
+                }, 500);
+            }
+
+            // Clear flags
+            localStorage.removeItem('wasLoggedOut');
+            localStorage.removeItem('logoutReason');
+            localStorage.removeItem('logoutTime');
         }
+    }
 
-        // Password reset success
-        if (urlParams.get('message') === 'resetSuccess') {
-            setTimeout(() => {
-                showToast('Password reset successful! Log in with your new password.', 'success', 4000);
-            }, 300);
+    function checkSessionStatus() {
+        // Make API call to check if user is actually logged out
+        fetch('/check-session')
+            .then(response => {
+                if (response.ok) {
+                    // User is still logged in (they shouldn't be on login page)
+                    response.json().then(data => {
+                        if (data.authenticated) {
+                            showToast(`Still logged in as ${data.user}. Redirecting...`, 'warning', 3000);
+                            setTimeout(() => {
+                                window.location.href = '/loginPage';
+                            }, 2000);
+                        }
+                    });
+                }
+            })
+            .catch(() => {
+                // API call failed, continue normally
+            });
+    }
+
+    // Detect back/forward navigation to login page
+    function detectBackNavigation() {
+        // Check if page was loaded from cache (back button)
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                // Page loaded from browser cache
+                setTimeout(() => {
+                    showToast('Please sign in to continue.', 'info', 4000);
+                }, 800);
+            }
+        });
+    }
+    // Check referrer to detect navigation flow
+    function analyzeNavigationFlow() {
+        if (document.referrer) {
+            const referrer = document.referrer.toLowerCase();
+            const currentHost = window.location.hostname.toLowerCase();
+
+            // Check if coming from our own site
+            if (referrer.includes(currentHost)) {
+                // Check what page we came from
+                if (referrer.includes('/logout')) {
+                    // Directly from logout
+                    setTimeout(() => {
+                        showToast('You have been logged out. Please sign in again.', 'info', 5000);
+                    }, 300);
+                } else if (referrer.includes('/loginpage') ||
+                    referrer.includes('/tasklist') ||
+                    referrer.includes('/home')) {
+                    // Coming from protected pages (likely back button)
+                    setTimeout(() => {
+                        showToast('Session required. Please log in.', 'info', 4000);
+                    }, 500);
+                }
+            }
         }
+    }
 
-        // Login error
-        if (urlParams.get('error') === 'invalid') {
+    // Check for form errors from previous submission
+    function checkForFormErrors() {
+        // You can store form errors in localStorage when submission fails
+        const formError = sessionStorage.getItem('loginError');
+        if (formError) {
             setTimeout(() => {
-                showToast('Incorrect username or password. Please try again.', 'error', 4000);
+                showToast(formError, 'error', 4000);
                 // Focus on password field for correction
                 setTimeout(() => {
                     document.getElementById('password').focus();
                     document.getElementById('password').select();
                 }, 500);
             }, 300);
+            sessionStorage.removeItem('loginError');
         }
+    }
 
-        // User not found (forgot password)
-        if (urlParams.get('error') === 'user_not_found') {
+    // ===== INITIALIZE =====
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Run all detection methods
+        checkForLogoutFlags();
+        checkSessionStatus();
+        detectBackNavigation();
+        analyzeNavigationFlow();
+        checkForFormErrors();
+
+        // Focus on username field
+        setTimeout(() => {
+            document.getElementById('username').focus();
+        }, 100);
+
+        // Check for registration success (you might store this differently)
+        const registrationSuccess = sessionStorage.getItem('registrationSuccess');
+        if (registrationSuccess === 'true') {
             setTimeout(() => {
-                showToast('User not found. Please check the username.', 'error', 4000);
-                document.getElementById('username').focus();
-            }, 300);
-        }
-
-        // Check for logout
-        if (localStorage.getItem('wasLoggedOut')) {
-            const reason = localStorage.getItem('logoutReason') || 'logout';
-            const messages = {
-                'logout': 'You have been logged out successfully.',
-                'expired': 'Your session has expired. Please log in again.',
-                'timeout': 'Session timed out due to inactivity.'
-            };
-
-            setTimeout(() => {
-                showToast(messages[reason] || 'Please log in to continue.', 'info', 5000);
+                showToast('Account created successfully! Please log in.', 'success', 4000);
             }, 500);
-
-            localStorage.removeItem('wasLoggedOut');
-            localStorage.removeItem('logoutReason');
+            sessionStorage.removeItem('registrationSuccess');
         }
 
-        // Check if coming from protected page (back button)
-        if (document.referrer && document.referrer.includes(window.location.hostname)) {
-            const protectedPaths = ['/loginPage', '/taskList', '/home'];
-            const comingFromProtected = protectedPaths.some(path =>
-                document.referrer.includes(path)
-            );
-
-            if (comingFromProtected && !document.referrer.includes('/login')) {
-                setTimeout(() => {
-                    showToast('Please sign in to access your account.', 'info', 4000);
-                }, 800);
-            }
+        // Check for password reset success
+        const passwordResetSuccess = sessionStorage.getItem('passwordResetSuccess');
+        if (passwordResetSuccess === 'true') {
+            setTimeout(() => {
+                showToast('Password reset successful! Log in with your new password.', 'success', 4000);
+            }, 500);
+            sessionStorage.removeItem('passwordResetSuccess');
         }
     });
 
-    // Enhance form submission
+    // ===== FORM HANDLING =====
+
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         const submitBtn = document.getElementById('submitBtn');
-        const originalText = submitBtn.textContent;
-
-        // Basic validation
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
 
+        // Basic validation
         if (!username || !password) {
             e.preventDefault();
             showToast('Please fill in all fields.', 'warning', 3000);
             return;
         }
 
+        // Store form data temporarily (optional)
+        sessionStorage.setItem('lastUsername', username);
+
         // Show loading state
+        const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Signing in...';
         submitBtn.disabled = true;
         submitBtn.style.opacity = '0.8';
@@ -492,31 +572,11 @@
             submitBtn.disabled = false;
             submitBtn.style.opacity = '1';
         }, 5000);
+
     });
 
-    // Focus on username field when page loads
-    setTimeout(() => {
-        document.getElementById('username').focus();
-    }, 100);
 
-    // Close toast when clicking anywhere outside
-    document.addEventListener('click', function(e) {
-        const toast = document.getElementById('toast');
-        if (toast.classList.contains('show') && !toast.contains(e.target)) {
-            hideToast();
-        }
-    });
 
-    // Close toast with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            hideToast();
-        }
-    });
-
-    // Optional: Auto-hide toast when form fields are focused
-    document.getElementById('username').addEventListener('focus', hideToast);
-    document.getElementById('password').addEventListener('focus', hideToast);
 </script>
 </body>
 </html>

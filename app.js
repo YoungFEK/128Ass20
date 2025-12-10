@@ -101,10 +101,37 @@ app.post("/register", async (req, res) => {
             securityAnswer: req.body.security_answer
         });
         await User.register(user, req.body.password);
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Redirecting...</title>
+                <script>
+                    // Set success flag and username
+                    sessionStorage.setItem('registrationSuccess', 'true');
+                    sessionStorage.setItem('registeredUsername', '${req.body.username}');
+                    // Redirect to login page
+                    window.location.href = '/login';
+                </script>
+            </head>
+            <body>
+                <p>Registration successful! Redirecting to login...</p>
+            </body>
+            </html>
+        `);
 
-        res.redirect("/login?registered=success");
     } catch (err) {
-        res.redirect("/register?registered=failed");
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <script>
+                    sessionStorage.setItem('registrationError', 'Registration failed. Username may already exist.');
+                    window.location.href = '/register';
+                </script>
+            </head>
+            </html>
+        `);
     }
 });
 
@@ -143,15 +170,52 @@ app.post("/reset-password", async (req, res) => {
         const { username, new_password } = req.body;
         const user = await User.findOne({ username });
 
-        if (!user) return res.send("User not found");
+        if (!user) {
+            return res.send(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <script>
+                        sessionStorage.setItem('resetError', 'User not found');
+                        window.location.href = '/forgot-password';
+                    </script>
+                </head>
+                <body>Redirecting...</body>
+                </html>
+            `);
+        }
 
         await user.setPassword(new_password);
         await user.save();
 
-        res.redirect("/login?message=resetSuccess");
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <script>
+                    sessionStorage.setItem('passwordResetSuccess', 'true');
+                    sessionStorage.setItem('resetUsername', '${username}');
+                    window.location.href = '/login';
+                </script>
+            </head>
+            <body>Password updated successfully! Redirecting to login...</body>
+            </html>
+        `);
     } catch (err) {
-        console.error(err);
-        res.send("Error updating password");
+        if (!user) {
+            return res.send(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <script>
+                        sessionStorage.setItem('resetError', 'User not found');
+                        window.location.href = '/forgot-password';
+                    </script>
+                </head>
+                <body>Redirecting...</body>
+                </html>
+            `);
+        }
     }
 });
 
