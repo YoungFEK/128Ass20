@@ -84,7 +84,7 @@ function isLoggedIn(req, res, next) {
 app.get("/verify-security", function (req, res) {
     res.render("verify-security");
 });
-app.get("/changePass", function (req, res) {
+app.get("/changePass", isLoggedIn ,function (req, res) {
     res.render("changePass");
 });
 
@@ -355,7 +355,7 @@ app.put("/updateProfileName", isLoggedIn, async (req, res) => {
 });
 
 
-    app.get("/security/:id", async (req, res) => {
+    app.get("/security/:id", isLoggedIn ,async (req, res) => {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).send("User not found");
         res.render("security", { user });
@@ -385,7 +385,7 @@ app.put("/updateProfileName", isLoggedIn, async (req, res) => {
 
 
 //ADDED METHODS IN RELATION TO MERGING TO DO LIST, VERY FEW LINES CAN BE FOUND ABOVE
-app.get("/taskList/:id", async(req, res) => {
+app.get("/taskList/:id", isLoggedIn , async(req, res) => {
 
     //integrating home.ejs and taskList.ejs
 
@@ -535,14 +535,14 @@ app.put("/update-task", async (req, res) => {
 
   try {
 
-    
+    // const tdlIdObject = new mongoose.Types.ObjectId(tdlId);
 
     const todoList = await TodoList.findById(tdlId);
     if (!todoList) {
         return res.status(404).send("To-Do List not found");
     }
 
-    todoList.tasks[taskId] = newName;
+    todoList.tasks[taskId].name = newName;
 
     await todoList.save();
 

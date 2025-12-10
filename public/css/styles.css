@@ -293,11 +293,22 @@ button {
   background: linear-gradient(135deg, #a38b6d, #8b6b4d);
   color: white;
   position: fixed;
-  bottom: 20px;
-  right: 40px;
+  top: 20px;
+  right: 200px;
   /* z-index: 100; */
   box-shadow: 0 4px 12px rgba(139, 107, 77, 0.3);
+  /* height: 40px; */
 }
+
+.top-right-buttons{
+  padding-bottom: 40px;
+}
+
+/* .top-right-buttons .profile-button {
+  position: static;
+  margin-left: 10px;
+  box-shadow: none;
+} */
 
 .logout-btn:hover {
   background: #bcaaa4;
@@ -484,7 +495,8 @@ p[style="text-align: center;"] {
 
   .box {
     padding: 20px;
-    margin: 15px auto;
+    /* margin: 15px auto; */
+    margin-top: 50%;
   }
 
   .box#heading {

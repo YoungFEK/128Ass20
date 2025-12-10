@@ -18,7 +18,6 @@
         <button onclick="closeLeftMenu()" class="left-sidebr-closebtn">Close &times;</button>
         
         <div class="todolist-division">
-
             <!-- We check if the object receieved is not
                 empty, else there will be an error -->
             <% if (tdl_Array.length===0) {%>
@@ -43,8 +42,9 @@
             <button type="submit" name="submit">create</button>
         </form>
 
-
     </div>
+
+
 
     <!-- right sidebar division displaying users both added and unadded -->
     <div class="right-sidebar" style="display:none;right:0;" id="rightMenu">
@@ -65,6 +65,7 @@
             <% } %>
         </div>
 
+
         <div id = "added-users" class="added-users">
             <p>Added users</p>
             <% for (var i=0; i< addedUsers.length; i++){ %>
@@ -76,13 +77,18 @@
         </div>
     </div>
 
+
+    <div class="top-right-buttons">
+        <button class="profile-button" onclick="window.location.href='/secret'">My Profile</button>
+        <button class="add-collaborator-button" id="add-collaborator-button" onclick="openRightMenu()">Add Collaborator</button>
+    </div>
+
     <div class="box" id="heading">
         <h1 style="color: #ffffff">
             To-Do List
         </h1>
     </div>
 
-    <button class="add-collaborator-button" id="add-collaborator-button" onclick="openRightMenu()">Add Collaborator</button>
     <!-- replace To do list label with hamburger -->
     <button class="access-todolist-button" id="access-todolist-button" onclick="openLeftMenu()">Todo Lists</button>
 
@@ -121,6 +127,7 @@
                         
                         <p>
                             <input type="text" class="task-input" value="<%= tasks[i].name %>" data-id="<%= i %>" data-tdlId="<%- tdl._id %>">
+                            <%- tdl._id %>
                         </p>
 
                         <input type="date" class="task-date" data-id="<%= i %>" value="<%= tasks[i].dueDate ? tasks[i].dueDate.toISOString().substring(0,10) : '' %>">
@@ -160,15 +167,7 @@
             <button type="submit" class ="addtaskbutton" name="submit">+</button>
         </form>
     </div>
-
-           
-            <button class="profile-btn" onclick="window.location.href='/secret'">My Profile</button>
-            <button class="logout-btn" onclick="logout()">Log Out</button>>
-
-
-
-
-
+            <button class="logout-btn" onclick="logout()">Log Out</button>
 
 
 
