@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Login Page</title>
-    <style> 
+    <style>
         * {
             box-sizing: border-box;
             margin: 0;
@@ -171,7 +171,6 @@
         .or::before { left: 0; }
         .or::after { right: 0; }
 
-
         .signup a {
             color: #795548;
             text-decoration: none;
@@ -180,6 +179,98 @@
 
         .signup a:hover {
             text-decoration: underline;
+        }
+
+        /* Enhanced Toast Styles */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        }
+        .toast.info {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        }
+        .toast.warning {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+        .toast.error {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 15px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .close-toast {
+            margin-left: 16px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .close-toast:hover {
+            background: rgba(255,255,255,0.25);
+            transform: scale(1.1);
+        }
+
+        /* Toast icon */
+        .toast-icon {
+            margin-right: 12px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* Toast progress bar */
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: rgba(255,255,255,0.7);
+            width: 100%;
+            border-radius: 0 0 10px 10px;
+            transform-origin: left;
+            animation: progress 5s linear forwards;
+        }
+
+        @keyframes progress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
         }
 
         @media (max-width: 900px) {
@@ -200,10 +291,25 @@
             .login-box {
                 padding: 2rem;
             }
+
+            .toast {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: calc(100% - 20px);
+            }
         }
     </style>
 </head>
 <body>
+<!-- Toast Container -->
+<div id="toast" class="toast">
+    <span class="toast-icon" id="toast-icon">ℹ️</span>
+    <span id="toast-message" class="toast-message"></span>
+    <button class="close-toast" onclick="hideToast()">&times;</button>
+    <div class="toast-progress" id="toast-progress"></div>
+</div>
+
 <div class="container">
     <div class="illustration">
         <h2>Welcome to</h2>
@@ -215,8 +321,7 @@
     <div class="login-box">
         <h1>Log In</h1>
         <h3>Welcome Back!</h3>
-        <form action="/loginPage" method="POST">
-            <!-- <form action="/login" method="POST"></form> -->
+        <form action="/loginPage" method="POST" id="loginForm">
             <label for="username">Username</label>
             <input type="text" name="username" id="username" required />
 
@@ -227,7 +332,7 @@
                 <a href="/forgot-Password">Forgot password?</a>
             </div>
 
-            <button type="submit">Sign in</button>
+            <button type="submit" id="submitBtn">Sign in</button>
 
             <div class="or">or</div>
 
@@ -235,18 +340,183 @@
         </form>
     </div>
 </div>
+
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('registered') === 'success') {
-        alert('Registered successfully!');
+    // Toast System
+    let toastTimeout;
+    let currentToastId = 0;
+
+    // Toast icons for different types
+    const toastIcons = {
+        success: '✅',
+        info: 'ℹ️',
+        warning: '⚠️',
+        error: '❌'
+    };
+
+    function showToast(message, type = 'info', duration = 5000) {
+        const toast = document.getElementById('toast');
+        const messageEl = document.getElementById('toast-message');
+        const iconEl = document.getElementById('toast-icon');
+        const progressEl = document.getElementById('toast-progress');
+
+        // Clear any existing timeout
+        if (toastTimeout) {
+            clearTimeout(toastTimeout);
+            toast.classList.remove('show');
+        }
+
+        // Set toast content
+        toast.className = `toast ${type}`;
+        messageEl.textContent = message;
+        iconEl.textContent = toastIcons[type] || 'ℹ️';
+
+        // Reset progress bar animation
+        progressEl.style.animation = 'none';
+        void progressEl.offsetWidth; // Trigger reflow
+        progressEl.style.animation = `progress ${duration}ms linear forwards`;
+
+        // Show toast
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+
+        // Auto hide after duration
+        toastTimeout = setTimeout(() => {
+            hideToast();
+        }, duration);
+
+        currentToastId++;
+        return currentToastId;
     }
-    if (urlParams.get('message') === 'resetSuccess') {
-        alert('Reset  successfully!');
+
+    function hideToast() {
+        const toast = document.getElementById('toast');
+        toast.classList.remove('show');
+        if (toastTimeout) clearTimeout(toastTimeout);
     }
-     if (urlParams.get('error') === 'invalid') {
-        alert('Incorrect Username or Password');
-    }
+
+    // Check URL parameters and show appropriate toasts
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Registration success
+        if (urlParams.get('registered') === 'success') {
+            setTimeout(() => {
+                showToast('Account created successfully! Please log in.', 'success', 4000);
+            }, 300);
+        }
+
+        // Password reset success
+        if (urlParams.get('message') === 'resetSuccess') {
+            setTimeout(() => {
+                showToast('Password reset successful! Log in with your new password.', 'success', 4000);
+            }, 300);
+        }
+
+        // Login error
+        if (urlParams.get('error') === 'invalid') {
+            setTimeout(() => {
+                showToast('Incorrect username or password. Please try again.', 'error', 4000);
+                // Focus on password field for correction
+                setTimeout(() => {
+                    document.getElementById('password').focus();
+                    document.getElementById('password').select();
+                }, 500);
+            }, 300);
+        }
+
+        // User not found (forgot password)
+        if (urlParams.get('error') === 'user_not_found') {
+            setTimeout(() => {
+                showToast('User not found. Please check the username.', 'error', 4000);
+                document.getElementById('username').focus();
+            }, 300);
+        }
+
+        // Check for logout
+        if (localStorage.getItem('wasLoggedOut')) {
+            const reason = localStorage.getItem('logoutReason') || 'logout';
+            const messages = {
+                'logout': 'You have been logged out successfully.',
+                'expired': 'Your session has expired. Please log in again.',
+                'timeout': 'Session timed out due to inactivity.'
+            };
+
+            setTimeout(() => {
+                showToast(messages[reason] || 'Please log in to continue.', 'info', 5000);
+            }, 500);
+
+            localStorage.removeItem('wasLoggedOut');
+            localStorage.removeItem('logoutReason');
+        }
+
+        // Check if coming from protected page (back button)
+        if (document.referrer && document.referrer.includes(window.location.hostname)) {
+            const protectedPaths = ['/loginPage', '/taskList', '/home'];
+            const comingFromProtected = protectedPaths.some(path =>
+                document.referrer.includes(path)
+            );
+
+            if (comingFromProtected && !document.referrer.includes('/login')) {
+                setTimeout(() => {
+                    showToast('Please sign in to access your account.', 'info', 4000);
+                }, 800);
+            }
+        }
+    });
+
+    // Enhance form submission
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.textContent;
+
+        // Basic validation
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!username || !password) {
+            e.preventDefault();
+            showToast('Please fill in all fields.', 'warning', 3000);
+            return;
+        }
+
+        // Show loading state
+        submitBtn.textContent = 'Signing in...';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.8';
+
+        // Re-enable after 5 seconds in case submission fails
+        setTimeout(() => {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+        }, 5000);
+    });
+
+    // Focus on username field when page loads
+    setTimeout(() => {
+        document.getElementById('username').focus();
+    }, 100);
+
+    // Close toast when clicking anywhere outside
+    document.addEventListener('click', function(e) {
+        const toast = document.getElementById('toast');
+        if (toast.classList.contains('show') && !toast.contains(e.target)) {
+            hideToast();
+        }
+    });
+
+    // Close toast with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideToast();
+        }
+    });
+
+    // Optional: Auto-hide toast when form fields are focused
+    document.getElementById('username').addEventListener('focus', hideToast);
+    document.getElementById('password').addEventListener('focus', hideToast);
 </script>
 </body>
 </html>
-
