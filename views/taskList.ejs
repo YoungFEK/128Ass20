@@ -369,14 +369,13 @@
                          localStorage.setItem('logoutReason', 'expired');
                          localStorage.setItem('logoutTime', Date.now().toString());
 
-                         window.location.href = '/login';
+                         window.location.replace('/login');
                      }
                  })
                  .catch(() => {
-                     // Network error - still set flags
                      localStorage.setItem('wasLoggedOut', 'true');
                      localStorage.setItem('logoutReason', 'network_error');
-                     window.location.href = '/login';
+                     window.location.replace('/login');
                  });
          });
 
@@ -390,7 +389,7 @@
              sessionStorage.removeItem('lastUsername');
 
              // Redirect to logout endpoint
-             window.location.href = '/logout';
+             window.location.replace('/logout');
          }
 
 
