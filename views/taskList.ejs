@@ -361,28 +361,18 @@
         }
 
          window.addEventListener('popstate', function() {
-             // Small delay to ensure everything is loaded
+             // Simple session check on back button
              setTimeout(function() {
                  fetch('/check-session')
                      .then(response => {
                          if (!response.ok) {
-                             // Session expired - show toast first, then redirect
-                             showToast('Your session has expired. Please log in again.', 'warning', 3000);
-
-                             // Wait for toast to be visible, then redirect
-                             setTimeout(() => {
-                                 window.location.href = '/login';
-                             }, 2000); // Redirect after 2 seconds (toast shows for 3 seconds)
+                             window.location.href = '/login';
                          }
                      })
                      .catch(() => {
-                         // Network error - still redirect with message
-                         showToast('Connection error. Please log in again.', 'error', 3000);
-                         setTimeout(() => {
-                             window.location.href = '/login';
-                         }, 2000);
+                         window.location.href = '/login';
                      });
-             }, 100);
+             }, 50);
          });
          function logout() {
              // Set flags for login page toast
