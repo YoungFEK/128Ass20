@@ -170,17 +170,14 @@ app.post("/loginPage", passport.authenticate("local", {
     failureRedirect: "/login?error=invalid"
 }));
 
-//examine isLoggedIn
 app.get("/loginPage", isLoggedIn, async function (req, res) {
     try {
         const user = await User.findById(req.user._id);
-        const userId = req.user._id;
-        
 
-        //secret is where profile information is displayed
-        // res.render("secret", { User: user });
-        //tdListIds may hold name
-        res.render("home", { userId: userId, tdl_Array: user.tdListIds});
+        const firstTdl = user.tdListIds[0];
+        if (firstTdl) {
+            return res.redirect("/taskList/" + firstTdl.id);
+        }
 
     } catch (error) {
         console.error(error);
