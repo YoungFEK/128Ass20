@@ -278,18 +278,27 @@ app.get("/logout", function (req, res, next) {
 });
 
 app.get("/check-session", (req, res) => {
-    console.log('Session check - isAuthenticated:', req.isAuthenticated());
-    
-    if (req.isAuthenticated()) {
-        res.json({ 
-            authenticated: true, 
-            user: req.user.username,
-            userId: req.user._id 
-        });
-    } else {
-        res.status(401).json({ 
+    try {
+        console.log('Session check - isAuthenticated:', req.isAuthenticated());
+
+        if (req.isAuthenticated() && req.user) {
+            res.json({
+                authenticated: true,
+                user: req.user.username || 'user',
+                userId: req.user._id
+            });
+        } else {
+            res.status(401).json({
+                authenticated: false,
+                message: 'Not authenticated'
+            });
+        }
+    } catch (error) {
+        console.error('Error in /check-session:', error);
+        // Return 200 with false to prevent frontend errors
+        res.status(200).json({
             authenticated: false,
-            message: 'Not authenticated' 
+            error: 'server_error'
         });
     }
 });
