@@ -358,6 +358,26 @@
             document.getElementById("leftMenu").style.display = "block";
         }
 
+         // Check session on page load and back/forward navigation
+        window.addEventListener('load', checkSession);
+        window.addEventListener('pageshow', checkSession);
+    
+        function checkSession() {
+            fetch('/check-session')
+                .then(response => {
+                    if (!response.ok) {
+                        // Session expired - show alert and redirect
+                        alert('Your session has expired. Please log in again.');
+                        window.location.href = '/login';
+                    }
+                })
+                .catch(() => {
+                    // Network error
+                     alert('Connection error. Please log in again.');
+                    window.location.href = '/login';
+                });
+        }
+
 
     </script>
 </body>
