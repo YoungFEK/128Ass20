@@ -358,7 +358,28 @@
             document.getElementById("leftMenu").style.display = "block";
         }
 
-         
+        const protectedPages = ['/loginPage', '/taskList', '/home'];
+        const currentPath = window.location.pathname;
+        
+        // If on a protected page but session might be expired
+        if (protectedPages.some(page => currentPath.includes(page))) {
+            // Make an AJAX call to check session
+            fetch('/check-session')
+                .then(response => {
+                    if (!response.ok) {
+                        // Session expired, show alert
+                        alert('Your session has expired. Please log in again.');
+                        window.location.href = '/login';
+                        return;
+                    }
+                    // Session is valid, allow back navigation
+                    return response.json();
+                })
+                .catch(() => {
+                    alert('Connection error. Please log in again.');
+                    window.location.href = '/login';
+                });
+        }
 
 
     </script>
