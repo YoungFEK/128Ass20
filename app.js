@@ -212,6 +212,23 @@ app.get("/logout", function (req, res, next) {
     });
 });
 
+app.get("/check-session", (req, res) => {
+    console.log('Session check - isAuthenticated:', req.isAuthenticated());
+    
+    if (req.isAuthenticated()) {
+        res.json({ 
+            authenticated: true, 
+            user: req.user.username,
+            userId: req.user._id 
+        });
+    } else {
+        res.status(401).json({ 
+            authenticated: false,
+            message: 'Not authenticated' 
+        });
+    }
+});
+
 //try not logging in
 app.put("/updateName", isLoggedIn, async (req, res) => {
     try {
