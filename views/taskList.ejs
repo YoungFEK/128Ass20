@@ -362,6 +362,22 @@
             document.getElementById("leftMenu").style.display = "block";
         }
 
+       window.addEventListener('popstate', function() {
+        // Small delay to ensure everything is loaded
+        setTimeout(function() {
+            fetch('/check-session')
+                .then(response => {
+                    if (!response.ok) {
+                        alert('Your session has expired. Please log in again.');
+                        window.location.href = '/login';
+                    }
+                })
+                .catch(() => {
+                    // Ignore network errors
+                });
+        }, 100);
+    });
+
 
 
     </script>
