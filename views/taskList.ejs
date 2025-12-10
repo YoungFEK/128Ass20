@@ -27,13 +27,10 @@
                 </p>
 
             <% } else { %>
-
                 <% for (var i=0; i< tdl_Array.length; i++){ %>
-
                     <div class="todolist-item">
                         <button onclick="window.location.href='/taskList/<%- tdl_Array[i].id %>'"><%- tdl_Array[i].name %></button>
                     </div>    
-
                 <% } %>
             <% } %>
             
