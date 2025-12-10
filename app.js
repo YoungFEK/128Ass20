@@ -60,6 +60,10 @@ app.use((req, res, next) => {
 
 
 
+app.get("/secret", isLoggedIn, async function (req, res) {
+    const user = await User.findById(req.user._id);
+    res.render("secret", { User: user });
+});
 
 
 // Showing register form
