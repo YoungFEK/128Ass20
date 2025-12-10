@@ -161,14 +161,7 @@
         </form>
     </div>
 
-            <% for (var i=0; i< users.length; i++){ %>
-                <button class ="addCollabButton" 
-                data-id = "<%- tdl._id %>" 
-                value="<%= users[i]._id %>" 
-                data-name = "<%- tdl.listName %>">
-                <%- users[i].username %>
-                </button>
-            <% } %>
+           
 
             <button class="logout-btn" onclick="window.location.href='/logout'">Log Out</button>
 
