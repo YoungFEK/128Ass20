@@ -39,9 +39,24 @@ app.use(require("express-session")({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+// Add Cache-Control Middleware
+app.use((req, res, next) => {
+    // Don't cache authenticated pages
+    if (req.isAuthenticated()) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    } else {
+        // For public pages, you can still cache
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+    }
+    next();
+});
 
 
 
@@ -173,10 +188,27 @@ app.get("/loginPage", isLoggedIn, async function (req, res) {
     }
 });
 
-app.get("/logout", function (req, res) {
+app.get("/logout", function (req, res, next) {
     req.logout(function (err) {
         if (err) { return next(err); }
-        res.redirect('/login');
+        // Destroy session
+        req.session.destroy((err) => {
+            if (err) {
+                console.log('Error destroying session:', err);
+            }
+            // Clear ALL cookies
+            res.clearCookie('connect.sid');
+            // Clear any other cookies
+            res.clearCookie('loggedIn');
+            
+            // Prevent caching by setting headers
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+            
+            // Redirect
+            res.redirect('/login');
+        });
     });
 });
 
