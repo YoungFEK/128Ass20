@@ -100,7 +100,22 @@ app.post("/register", async (req, res) => {
             securityQuestion: req.body.security_question,
             securityAnswer: req.body.security_answer
         });
-        await User.register(user, req.body.password);
+
+        const newTodoList= new TodoList({
+            listName: "Main",
+            tasks: []
+        });
+
+        await User.register(user, req.body.password);4
+        await newTodoList.save();
+
+        const todoListObject = {
+        id: newTodoList._id,
+        name: newTodoList.listName
+        }
+        user.tdListIds.push(todoListObject); 
+        await user.save();
+    
         res.send(`
             <!DOCTYPE html>
             <html>
