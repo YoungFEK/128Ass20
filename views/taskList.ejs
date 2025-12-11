@@ -127,7 +127,6 @@
                         
                         <p>
                             <input type="text" class="task-input" value="<%= tasks[i].name %>" data-id="<%= i %>" data-tdlId="<%- tdl._id %>">
-                            <%- tdl._id %>
                         </p>
 
                         <input type="date" class="task-date" data-id="<%= i %>" value="<%= tasks[i].dueDate ? tasks[i].dueDate.toISOString().substring(0,10) : '' %>">
